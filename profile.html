@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Player Profile - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>Player Profile Search</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<div class="box" style="background:#1e293b; padding:20px; border-radius:10px; max-width:600px; margin:auto; border:1px solid #334155;">
+    <label>Search Player Name:</label>
+    <select id="profile-search-select" onchange="loadPlayerProfile()">
+        <option value="">-- Choose a Player --</option>
+    </select>
+</div>
+
+<div id="profile-output" style="margin-top:30px;"></div>
+
+<script src="data/db.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/profile.js"></script>
+</body>
+</html>

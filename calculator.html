@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Elo Calculator - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h1>GHelo & GHPS Calculator</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<div class="box" style="background: #1e293b; padding: 30px; border-radius: 12px; max-width: 500px; margin: auto; border: 1px solid #334155;">
+    <h2 style="margin-top:0; border:none; padding:0;">Simulation Tool</h2>
+    
+    <label>Player A Name:</label>
+    <input id="calcNameA" type="text" value="Player A">
+    <label>Player A Initial GHelo & GHPS:</label>
+    <div style="display:flex; gap:10px;">
+        <input id="calcRatingA" type="number" value="1200" placeholder="GHelo">
+        <input id="calcGhpsA" type="number" step="0.001" value="0.000" placeholder="GHPS">
+    </div>
+
+    <hr style="border:0; height:1px; background:#334155; margin:15px 0;">
+
+    <label>Player B Name:</label>
+    <input id="calcNameB" type="text" value="Player B">
+    <label>Player B Initial GHelo & GHPS:</label>
+    <div style="display:flex; gap:10px;">
+        <input id="calcRatingB" type="number" value="1200" placeholder="GHelo">
+        <input id="calcGhpsB" type="number" step="0.001" value="0.000" placeholder="GHPS">
+    </div>
+
+    <hr style="border:0; height:1px; background:#334155; margin:15px 0;">
+
+    <label>Simulated Outcome:</label>
+    <select id="calcResult">
+        <option value="1-0">Player A Wins (1-0)</option>
+        <option value="0-1">Player B Wins (0-1)</option>
+        <option value="0.5-0.5">Draw (0.5-0.5)</option>
+    </select>
+
+    <button onclick="runSimulation()" style="margin-top:15px;">Calculate Adjustments</button>
+</div>
+
+<div id="calcOutput" class="match-item" style="display: none; max-width: 500px; margin: 20px auto 0 auto; border-left-color: #3b82f6;"></div>
+
+<script>
+    function runSimulation() {
+        let nameA = document.getElementById("calcNameA").value || "Player A";
+        let nameB = document.getElementById("calcNameB").value || "Player B";
+        
+        let rA = parseFloat(document.getElementById("calcRatingA").value) || 0;
+        let ghpsA = parseFloat(document.getElementById("calcGhpsA").value) || 0;
+        
+        let rB = parseFloat(document.getElementById("calcRatingB").value) || 0;
+        let ghpsB = parseFloat(document.getElementById("calcGhpsB").value) || 0;
+        
+        let outcome = document.getElementById("calcResult").value;
+
+        let expectedScoreA = 1 / (1 + Math.pow(10, (rB - rA) / 400));
+        let expectedScoreB = 1 / (1 + Math.pow(10, (rA - rB) / 400));
+
+        let SA, SB;
+        if (outcome === "1-0") { SA = 1; SB = 0; } 
+        else if (outcome === "0-1") { SA = 0; SB = 1; } 
+        else { SA = 0.5; SB = 0.5; }
+
+        let changeA = 40 * (SA - expectedScoreA);
+        let changeB = 40 * (SB - expectedScoreB);
+
+        let diffGhpsA = (SA - expectedScoreA);
+        let diffGhpsB = (SB - expectedScoreB);
+
+        let outDiv = document.getElementById("calcOutput");
+        outDiv.style.display = "block";
+        outDiv.innerHTML = `
+            <h3 style="color:#3b82f6; margin-bottom:10px;">Calculation Output:</h3>
+            <p><b>${nameA} Expected Score:</b> ${(expectedScoreA * 100).toFixed(2)}%</p>
+            <p><b>${nameB} Expected Score:</b> ${(expectedScoreB * 100).toFixed(2)}%</p>
+            <hr style="border: 0; height: 1px; background: #334155; margin: 10px 0;">
+            <p><strong>${nameA} Update:</strong></p>
+            <p>GHelo: ${Math.round(rA)} &rarr; <b style="color:#10b981;">${Math.round(rA + changeA)}</b> (${changeA >= 0 ? '+' : ''}${changeA.toFixed(4)})</p>
+            <p>GHPS: ${ghpsA.toFixed(3)} &rarr; <b style="color:#10b981;">${(ghpsA + diffGhpsA).toFixed(3)}</b></p>
+            <br>
+            <p><strong>${nameB} Update:</strong></p>
+            <p>GHelo: ${Math.round(rB)} &rarr; <b style="color:#10b981;">${Math.round(rB + changeB)}</b> (${changeB >= 0 ? '+' : ''}${changeB.toFixed(4)})</p>
+            <p>GHPS: ${ghpsB.toFixed(3)} &rarr; <b style="color:#10b981;">${(ghpsB + diffGhpsB).toFixed(3)}</b></p>
+        `;
+    }
+</script>
+
+</body>
+</html>

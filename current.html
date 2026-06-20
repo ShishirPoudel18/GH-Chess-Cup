@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Current Season - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* CSS Knockout Bracket Tree Styles */
+        .bracket-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .bracket-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 400px;
+            min-width: 180px;
+        }
+        .bracket-box {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .bracket-box div {
+            padding: 3px 0;
+        }
+        .bracket-box .winner {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .bracket-title {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Current Season Dashboard</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<!-- 1. LIVE TOURNAMENT LEADERBOARD -->
+<h2>Current Season Leaderboard</h2>
+<div id="live-leaderboard"></div>
+
+<!-- 2. FOUR GROUP POINTS TABLES -->
+<div id="group-tables"></div>
+
+<!-- 3. THE KNOCKOUT TREE DIAGRAM -->
+<h2>Knockout Bracket</h2>
+<div id="knockout-bracket"></div>
+
+<!-- 4. REMAINING FIXTURES SCHEDULES -->
+<h2>Remaining Schedules</h2>
+<div id="group-schedules"></div>
+
+<!-- 5. COMPLETED MATCH RESULTS -->
+<h2>Completed Match Results</h2>
+<div id="completed-results"></div>
+
+<script src="data/db.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/current.js"></script>
+</body>
+</html>

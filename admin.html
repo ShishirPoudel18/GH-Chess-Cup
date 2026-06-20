@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-box { background: #1e293b; padding: 25px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
+        .hidden { display: none !important; }
+        .admin-nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .admin-nav button { width: auto; background: #334155; padding: 10px 15px; }
+        .admin-nav button.active { background: #3b82f6; }
+        .danger-btn { background: #ef4444; }
+        .danger-btn:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+<h1>Admin Dashboard</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-section" class="admin-box" style="max-width: 400px;">
+    <h2>Secure Admin Login</h2>
+    <label>Username:</label>
+    <input type="text" id="admin-user" placeholder="Enter Admin Username">
+    <label>Password:</label>
+    <input type="password" id="admin-pass" placeholder="Enter Admin Password">
+    <button onclick="attemptLogin()">Login</button>
+    <p id="login-error" style="color: #ef4444; margin-top: 10px; text-align: center;" class="hidden">Invalid credentials!</p>
+</div>
+
+<!-- MAIN ADMIN INTERFACE -->
+<div id="admin-interface" class="hidden">
+    <div class="admin-nav">
+        <button id="nav-input" class="active" onclick="switchTab('input')">Input Match Record</button>
+        <button id="nav-delete" onclick="switchTab('delete')">Delete Match Record</button>
+        <button id="nav-roster" onclick="switchTab('roster')">Manage Player Roster</button>
+    </div>
+
+    <!-- TAB 1: INPUT MATCH RECORD -->
+    <div id="tab-input" class="admin-box">
+        <h2>Input Match Record</h2>
+        
+        <label>Select Stage:</label>
+        <select id="input-stage" onchange="onStageChange()">
+            <option value="">-- Choose Stage --</option>
+            <option value="group">Group Stage</option>
+            <option value="knockout">Knockouts (QF / SF / Finals)</option>
+        </select>
+
+        <!-- Group Scoped Selectors -->
+        <div id="group-selectors" class="hidden">
+            <label>Group:</label>
+            <select id="input-group" onchange="onGroupOrMatchChange()">
+                <option value="A">Group A</option>
+                <option value="B">Group B</option>
+                <option value="C">Group C</option>
+                <option value="D">Group D</option>
+            </select>
+
+            <label>Match Number:</label>
+            <select id="input-match-no" onchange="onGroupOrMatchChange()">
+                <option value="1">Match #1</option>
+                <option value="2">Match #2</option>
+                <option value="3">Match #3</option>
+                <option value="4">Match #4</option>
+                <option value="5">Match #5</option>
+                <option value="6">Match #6</option>
+                <option value="7">Match #7</option>
+                <option value="8">Match #8</option>
+                <option value="9">Match #9</option>
+                <option value="10">Match #10</option>
+            </select>
+        </div>
+
+        <!-- Knockout Scoped Selectors -->
+        <div id="knockout-selectors" class="hidden">
+            <label>Knockout Round Match:</label>
+            <select id="input-ko-stage" onchange="onKnockoutRoundChange()">
+                <option value="QF1">QF1 (A1 vs B2)</option>
+                <option value="QF2">QF2 (B1 vs A2)</option>
+                <option value="QF3">QF3 (C1 vs D2)</option>
+                <option value="QF4">QF4 (D1 vs C2)</option>
+                <option value="SF1">SF1</option>
+                <option value="SF2">SF2</option>
+                <option value="Final">Grand Final</option>
+            </select>
+        </div>
+
+        <!-- Match Pairing Dynamic Preview Info -->
+        <div id="pairing-preview" style="background: #0f172a; padding: 15px; margin: 15px 0; border-radius: 6px; text-align: center; font-weight: bold;">
+            Please select a clean match config setup above...
+        </div>
+
+        <!-- Match Result Input Parameters -->
+        <div id="result-inputs" class="hidden">
+            <label>Match Date:</label>
+            <input type="date" id="match-date">
+
+            <label>Choose Outcome:</label>
+            <select id="match-outcome" onchange="toggleMethodField()">
+                <option value="1-0">White Player Wins (1 - 0)</option>
+                <option value="0-1">Black Player Wins (0 - 1)</option>
+                <option value="0.5-0.5" id="draw-option">Draw (0.5 - 0.5)</option>
+            </select>
+
+            <label>Winning Method / Notes:</label>
+            <input type="text" id="match-method" placeholder="e.g. Checkmate, Resignation, Time forfeit">
+
+            <button onclick="saveMatchRecord()" style="background: #10b981; margin-top: 20px;">Save & Update Tournament Data</button>
+        </div>
+    </div>
+
+    <!-- TAB 2: DELETE MATCH RECORD -->
+    <div id="tab-delete" class="admin-box hidden">
+        <h2>Delete Completed Match Record</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px;">Select any logged match to revert it to 'pending' state and completely recalculate rankings instantly.</p>
+        <div id="completed-matches-list"></div>
+    </div>
+
+    <!-- TAB 3: MANAGE PLAYER ROSTER -->
+    <div id="tab-roster" class="admin-box hidden">
+        <h2>Manage Player Roster</h2>
+        <p style="color: #94a3b8; margin-bottom: 15px;">Swap a player's name out, or inject/adjust baseline data configs. (Requires reloading database configurations to recalculate).</p>
+        <div id="roster-management-container"></div>
+    </div>
+</div>
+
+<script src="data/db.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Media Gallery - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 15px; margin-top: 25px; }
+        .photo-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; overflow: hidden; transition: transform 0.2s; }
+        .photo-card:hover { transform: translateY(-4px); }
+        .photo-card img { width: 100%; height: 180px; object-fit: cover; background: #0f172a; display: block; }
+        .photo-desc { padding: 12px; font-size: 0.85rem; color: #cbd5e1; text-align: center; }
+    </style>
+</head>
+<body>
+
+<h1>Tournament Gallery</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<h2>Captured Moments</h2>
+<p style="color: #94a3b8;">Relive highlights and matches from over the years.</p>
+
+<div class="gallery-grid">
+    <!-- Photo 1 Placeholder -->
+    <div class="photo-card">
+        <img src="https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=500&auto=format&fit=crop&q=60" alt="Tournament Hall">
+        <div class="photo-desc">Grand Finals Venue Match Setup Context</div>
+    </div>
+
+    <!-- Photo 2 Placeholder -->
+    <div class="photo-card">
+        <img src="https://images.unsplash.com/photo-1560174038-da43cd745b9b?w=500&auto=format&fit=crop&q=60" alt="Chess Clock">
+        <div class="photo-desc">Tense Blitz Round Overtime Armageddon Deciders</div>
+    </div>
+
+    <!-- Photo 3 Placeholder -->
+    <div class="photo-card">
+        <img src="https://images.unsplash.com/photo-1523821741446-edb2b68bb7a0?w=500&auto=format&fit=crop&q=60" alt="Chess Pieces">
+        <div class="photo-desc">Group Play Openers Clash Highlight Captures</div>
+    </div>
+</div>
+
+</body>
+</html>

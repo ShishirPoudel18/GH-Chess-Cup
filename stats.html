@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All-Time Stats - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stats-nav { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .stats-nav button { width: auto; background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 10px 15px; font-weight: normal; }
+        .stats-nav button.active { background: #3b82f6; color: white; font-weight: bold; border-color: #3b82f6; }
+    </style>
+</head>
+<body>
+
+<h1>All-Time Historical Stats</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<div class="stats-nav">
+    <button id="btn-rank" class="active" onclick="renderStats('rank')">Player's Ranking</button>
+    <button id="btn-wins" onclick="renderStats('wins')">Most Wins</button>
+    <button id="btn-pct" onclick="renderStats('pct')">Best Win%</button>
+    <button id="btn-helo" onclick="renderStats('helo')">Top GHelo</button>
+</div>
+
+<h2 id="stats-title">Player's Ranking</h2>
+<div id="stats-table-container"></div>
+
+<script src="data/db.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/stats.js"></script>
+</body>
+</html>

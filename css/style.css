@@ -1,0 +1,111 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0f172a; 
+    color: #f8fafc; 
+    padding: 40px 20px;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    color: #3b82f6;
+}
+
+h2 {
+    font-size: 1.6rem;
+    margin: 30px 0 15px 0;
+    color: #e2e8f0;
+    border-left: 4px solid #10b981;
+    padding-left: 10px;
+}
+
+div {
+    max-width: 900px;
+    margin: auto;
+}
+
+.menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    display: block;
+    padding: 20px;
+    background: #1e293b; 
+    border: 1px solid #334155;
+    color: #f8fafc;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+}
+
+.card h3 {
+    color: #3b82f6;
+    margin-bottom: 5px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #1e293b;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #334155;
+}
+
+th {
+    background: #1e293b;
+    color: #3b82f6;
+}
+
+tr:hover {
+    background: #24334d;
+}
+
+.match-item {
+    background: #1e293b;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border-left: 4px solid #3b82f6;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: white;
+    border-radius: 6px;
+}
+
+button {
+    background: #3b82f6;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2563eb;
+}

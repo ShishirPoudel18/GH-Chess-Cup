@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Seasons Archive - GH Chess Cup</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .podium-list { list-style: none; padding: 0; margin: 10px 0; }
+        .podium-list li { padding: 5px 0; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
+        .gold { color: #eab308; font-weight: bold; }
+        .silver { color: #cbd5e1; font-weight: bold; }
+        .bronze { color: #b45309; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h1>Seasons Historical Archive</h1>
+
+<div style="text-align: center; margin-bottom: 30px;">
+    <a href="index.html" class="card" style="display: inline-block; padding: 10px 20px; font-size: 16px; text-decoration: none;">&larr; Back to Home</a>
+</div>
+
+<h2>Completed Tournament Portfolios</h2>
+<p style="color: #94a3b8;">Browse historical records across past event series configurations.</p>
+
+<div id="archive-container" class="archive-grid"></div>
+
+<script src="data/db.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/seasons.js"></script>
+</body>
+</html>
