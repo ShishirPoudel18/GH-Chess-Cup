@@ -1,68 +1,33 @@
 // data/db.js
 
-// Historical standalone records for Season 1 and Season 2
-const historicalSeasons = {
-    1: {
-        champion: "Utsav Sapkota",
-        runnerUp: "Shishir Poudel",
-        leaderboard: [
-            { name: "Utsav Sapkota", played: 12, won: 9 },
-            { name: "Shishir Poudel", played: 12, won: 8 },
-            { name: "Sushanta Karki", played: 10, won: 6 },
-            { name: "Sujan Thapa", played: 10, won: 5 },
-            { name: "Yusush Magar", played: 10, won: 4 }
-        ],
-        groups: {
-            A: [
-                { name: "Utsav Sapkota", played: 4, wins: 3, losses: 1, draws: 0, points: 3 },
-                { name: "Shishir Poudel", played: 4, wins: 3, losses: 1, draws: 0, points: 3 },
-                { name: "Sushanta Karki", played: 4, wins: 2, losses: 2, draws: 0, points: 2 },
-                { name: "Sujan Thapa", played: 4, wins: 1, losses: 3, draws: 0, points: 1 },
-                { name: "Yusush Magar", played: 4, wins: 1, losses: 3, draws: 0, points: 1 }
-            ]
-        }
-    },
-    2: {
-        champion: "Shishir Poudel",
-        runnerUp: "Utsav Sapkota",
-        leaderboard: [
-            { name: "Shishir Poudel", played: 12, won: 10 },
-            { name: "Utsav Sapkota", played: 12, won: 8 },
-            { name: "Sushanta Karki", played: 10, won: 5 },
-            { name: "Sujan Thapa", played: 10, won: 4 },
-            { name: "Yusush Magar", played: 10, won: 3 }
-        ],
-        groups: {
-            A: [
-                { name: "Shishir Poudel", played: 4, wins: 4, losses: 0, draws: 0, points: 4 },
-                { name: "Utsav Sapkota", played: 4, wins: 3, losses: 1, draws: 0, points: 3 },
-                { name: "Sushanta Karki", played: 4, wins: 1, losses: 2, draws: 1, points: 1.5 },
-                { name: "Sujan Thapa", played: 4, wins: 1, losses: 3, draws: 0, points: 1 },
-                { name: "Yusush Magar", played: 4, wins: 0, losses: 3, draws: 1, points: 0.5 }
-            ]
-        }
-    }
-};
-
-// Initial Player List for Season 3 initialization
+// 1. THE OFFICIAL 20 PARTICIPANTS WITH EXACT UNIFIED LEGACY STATS FROM S1+S2
 const initialPlayers = [
-    { name: "Utsav Sapkota", baseGHelo: 1200, s12Wins: 17, s12Played: 24, s12Losses: 7, s12Draws: 0 },
-    { name: "Shishir Poudel", baseGHelo: 1250, s12Wins: 18, s12Played: 24, s12Losses: 6, s12Draws: 0 },
-    { name: "Sushanta Karki", baseGHelo: 1050, s12Wins: 11, s12Played: 20, s12Losses: 8, s12Draws: 1 },
-    { name: "Sujan Thapa", baseGHelo: 980, s12Wins: 9, s12Played: 20, s12Losses: 11, s12Draws: 0 },
-    { name: "Yusush Magar", baseGHelo: 920, s12Wins: 7, s12Played: 20, s12Losses: 12, s12Draws: 1 },
-    // Adding structural template nodes to round out the 20 player layout
-    ...Array.from({ length: 15 }, (_, i) => ({
-        name: `Player ${i + 6}`,
-        baseGHelo: 1000,
-        s12Wins: 5,
-        s12Played: 10,
-        s12Losses: 5,
-        s12Draws: 0
-    }))
+    { name: "Utsav Sapkota", baseGHelo: 920, totalPlayed: 6, totalWins: 6, totalLosses: 0, totalDraws: 0, group: "A" },
+    { name: "Shishir Poudel", baseGHelo: 1000, totalPlayed: 12, totalWins: 11, totalLosses: 1, totalDraws: 0, group: "A" },
+    { name: "Sushanta Karki", baseGHelo: 900, totalPlayed: 11, totalWins: 8, totalLosses: 3, totalDraws: 0, group: "A" },
+    { name: "Sujan Thapa", baseGHelo: 900, totalPlayed: 11, totalWins: 8, totalLosses: 3, totalDraws: 0, group: "A" },
+    { name: "Yusush Magar", baseGHelo: 860, totalPlayed: 9, totalWins: 6, totalLosses: 3, totalDraws: 0, group: "A" },
+    
+    { name: "Sujal Poudel", baseGHelo: 820, totalPlayed: 9, totalWins: 5, totalLosses: 4, totalDraws: 0, group: "B" },
+    { name: "Yogesh Ale Magar", baseGHelo: 800, totalPlayed: 10, totalWins: 5, totalLosses: 5, totalDraws: 0, group: "B" },
+    { name: "Saurav Sharma", baseGHelo: 780, totalPlayed: 9, totalWins: 4, totalLosses: 5, totalDraws: 0, group: "B" },
+    { name: "Sushant Raj Shrestha", baseGHelo: 780, totalPlayed: 9, totalWins: 4, totalLosses: 5, totalDraws: 0, group: "B" },
+    { name: "Suyog Sedhai", baseGHelo: 780, totalPlayed: 7, totalWins: 3, totalLosses: 4, totalDraws: 0, group: "B" },
+
+    { name: "Thomas Uprety", baseGHelo: 780, totalPlayed: 5, totalWins: 2, totalLosses: 3, totalDraws: 0, group: "C" },
+    { name: "Shivam Patel", baseGHelo: 780, totalPlayed: 3, totalWins: 1, totalLosses: 2, totalDraws: 0, group: "C" },
+    { name: "Shushant Poudel", baseGHelo: 780, totalPlayed: 3, totalWins: 1, totalLosses: 2, totalDraws: 0, group: "C" },
+    { name: "Yogesh Poudel", baseGHelo: 780, totalPlayed: 3, totalWins: 1, totalLosses: 2, totalDraws: 0, group: "C" },
+    { name: "Sushanta Ghimire", baseGHelo: 760, totalPlayed: 4, totalWins: 1, totalLosses: 3, totalDraws: 0, group: "C" },
+
+    { name: "Sumit Shrestha", baseGHelo: 760, totalPlayed: 4, totalWins: 1, totalLosses: 3, totalDraws: 0, group: "D" },
+    { name: "Vinayak Shrestha", baseGHelo: 680, totalPlayed: 8, totalWins: 1, totalLosses: 7, totalDraws: 0, group: "D" },
+    { name: "Umanga Adhikari", baseGHelo: 760, totalPlayed: 2, totalWins: 0, totalLosses: 2, totalDraws: 0, group: "D" },
+    { name: "Siddhartha Bhatta", baseGHelo: 700, totalPlayed: 5, totalWins: 0, totalLosses: 5, totalDraws: 0, group: "D" },
+    { name: "Shahil Thapa", baseGHelo: 680, totalPlayed: 6, totalWins: 0, totalLosses: 6, totalDraws: 0, group: "D" }
 ];
 
-// Fixed round-robin index map matching your schedule structure rules
+// 2. FIXED ROUND-ROBIN GROUP SCHEDULING MATRIX
 const fixedScheduleMatrix = [
     { matchNo: 1, p1Idx: 0, p2Idx: 1 },
     { matchNo: 2, p1Idx: 3, p2Idx: 4 },
@@ -75,3 +40,58 @@ const fixedScheduleMatrix = [
     { matchNo: 9, p1Idx: 2, p2Idx: 3 },
     { matchNo: 10, p1Idx: 0, p2Idx: 4 }
 ];
+
+// --- GENERATION ENGINE (Maps your exact data straight to the HTML) ---
+const generatedPlayersObj = {};
+const generatedMatchesArr = [];
+let overallMatchCounter = 1;
+
+initialPlayers.forEach(p => {
+    generatedPlayersObj[p.name] = {
+        name: p.name,
+        currentGroup: p.group,
+        ghelo: p.baseGHelo,
+        topGHelo: p.baseGHelo,
+        currentWins: 0,
+        currentLosses: 0,
+        currentDraws: 0,
+        currentPoints: 0,
+        currentGHPS: 0,
+        allTimePlayed: p.totalPlayed,
+        allTimeWon: p.totalWins,
+        allTimeLost: p.totalLosses,
+        allTimeDrawn: p.totalDraws
+    };
+});
+
+["A", "B", "C", "D"].forEach(gLabel => {
+    const groupPlayers = initialPlayers.filter(p => p.group === gLabel);
+    fixedScheduleMatrix.forEach(m => {
+        generatedMatchesArr.push({
+            matchNo: overallMatchCounter++,
+            stage: "group",
+            group: gLabel,
+            white: groupPlayers[m.p1Idx].name,
+            black: groupPlayers[m.p2Idx].name,
+            result: "pending",
+            date: "",
+            method: ""
+        });
+    });
+});
+
+const knockoutMatches = [
+    { matchNo: 41, stage: "QF1", white: "", black: "", result: "pending", date: "", method: "" },
+    { matchNo: 42, stage: "QF2", white: "", black: "", result: "pending", date: "", method: "" },
+    { matchNo: 43, stage: "QF3", white: "", black: "", result: "pending", date: "", method: "" },
+    { matchNo: 44, stage: "QF4", white: "", black: "", result: "pending", date: "", method: "" },
+    { matchNo: 45, stage: "SF1", white: "", black: "", result: "pending", date: "", method: "" },
+    { matchNo: 46, stage: "SF2", white: "", black: "", result: "pending", date: "", method: "" },
+    { matchNo: 47, stage: "Final", white: "", black: "", result: "pending", date: "", method: "" }
+];
+generatedMatchesArr.push(...knockoutMatches);
+
+window.tournamentDatabaseBaseline = {
+    players: generatedPlayersObj,
+    currentMatches: generatedMatchesArr
+};
