@@ -271,24 +271,43 @@ function renderLeaderboard() {
 }
 
 // ADMIN AUTHENTICATION
-function loginAdmin() {
-    const pass = document.getElementById("admin-pass-input").value;
-    if(pass === "pulchowk123") { // Change Password here
+// Firebase Auth State Observer (Listens for login/logout automatically)
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
         appState.isAdminLoggedIn = true;
         document.getElementById("admin-login-card").classList.add("hidden");
         document.getElementById("admin-panel").classList.remove("hidden");
         populateAdminSeasonDropdowns();
     } else {
-        document.getElementById("login-error").innerText = "Invalid Password!";
+        appState.isAdminLoggedIn = false;
+        document.getElementById("admin-login-card").classList.remove("hidden");
+        document.getElementById("admin-panel").classList.add("hidden");
     }
+});
+
+// Secure Firebase Login
+function loginAdmin() {
+    const email = document.getElementById("admin-email-input").value.trim();
+    const pass = document.getElementById("admin-pass-input").value;
+    const errorMsg = document.getElementById("login-error");
+
+    errorMsg.innerText = "";
+
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then(() => {
+            console.log("Logged in successfully as admin.");
+        })
+        .catch((error) => {
+            errorMsg.innerText = "Login failed: " + error.message;
+        });
 }
 
+// Secure Firebase Logout
 function logoutAdmin() {
-    appState.isAdminLoggedIn = false;
-    document.getElementById("admin-login-card").classList.remove("hidden");
-    document.getElementById("admin-panel").classList.add("hidden");
+    firebase.auth().signOut().then(() => {
+        alert("Logged out of Admin Panel.");
+    });
 }
-
 function switchAdminSubTab(tabName) {
     document.querySelectorAll(".admin-sub-content").forEach(el => el.classList.remove("active"));
     document.querySelectorAll(".admin-tab-btn").forEach(el => el.classList.remove("active"));
