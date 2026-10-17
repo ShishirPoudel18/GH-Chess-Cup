@@ -348,17 +348,20 @@ function populatePlayerDropdowns() {
 function submitMatchResult() {
     const seasonNum = document.getElementById("result-season-select").value;
     const matchId = parseInt(document.getElementById("result-match-select").value);
-    const outcome = document.getElementById("result-outcome-select").value;
+    const outcome = document.getElementById("result-outcome-select").value; // 'p1', 'p2', or 'draw'
     const method = document.getElementById("result-method-input").value;
 
     const seasonRef = db.ref(`seasons/season_${seasonNum}`);
     seasonRef.child('matches').once('value', snapshot => {
         let matches = snapshot.val() || [];
         const mIdx = matches.findIndex(m => m.id === matchId);
-        if(mIdx === -1) return;
+        if (mIdx === -1) return;
 
         const match = matches[mIdx];
-        const winnerName = outcome === 'white' ? match.white : (outcome === 'black' ? match.black : 'Draw');
+        const player1 = match.white; // stored player 1
+        const player2 = match.black; // stored player 2
+
+        const winnerName = outcome === 'p1' ? player1 : (outcome === 'p2' ? player2 : 'Draw');
 
         // Update Match Record
         matches[mIdx].status = 'completed';
@@ -369,18 +372,18 @@ function submitMatchResult() {
         seasonRef.child('matches').set(matches);
 
         // Update Player Overall Stats & GHelo
-        updateGHeloAndStats(match.white, match.black, outcome);
+        updateGHeloAndStats(player1, player2, outcome);
         alert("Match result updated successfully!");
     });
 }
 
-function updateGHeloAndStats(whiteName, blackName, outcome) {
-    const p1 = appState.players[whiteName] || { name: whiteName, ghelo: 800, matches: 0, wins: 0, losses: 0, draws: 0 };
-    const p2 = appState.players[blackName] || { name: blackName, ghelo: 800, matches: 0, wins: 0, losses: 0, draws: 0 };
+function updateGHeloAndStats(p1Name, p2Name, outcome) {
+    const p1 = appState.players[p1Name] || { name: p1Name, ghelo: 800, matches: 0, wins: 0, losses: 0, draws: 0 };
+    const p2 = appState.players[p2Name] || { name: p2Name, ghelo: 800, matches: 0, wins: 0, losses: 0, draws: 0 };
 
     const K = 50;
-    const S1 = outcome === 'white' ? 1 : (outcome === 'draw' ? 0.5 : 0);
-    const S2 = outcome === 'black' ? 1 : (outcome === 'draw' ? 0.5 : 0);
+    const S1 = outcome === 'p1' ? 1 : (outcome === 'draw' ? 0.5 : 0);
+    const S2 = outcome === 'p2' ? 1 : (outcome === 'draw' ? 0.5 : 0);
 
     const E1 = 1 / (1 + Math.pow(10, (p2.ghelo - p1.ghelo) / 400));
     const E2 = 1 / (1 + Math.pow(10, (p1.ghelo - p2.ghelo) / 400));
@@ -391,12 +394,12 @@ function updateGHeloAndStats(whiteName, blackName, outcome) {
     p1.matches = (p1.matches || 0) + 1;
     p2.matches = (p2.matches || 0) + 1;
 
-    if(S1 === 1) { p1.wins++; p2.losses++; }
-    else if(S2 === 1) { p2.wins++; p1.losses++; }
+    if (S1 === 1) { p1.wins++; p2.losses++; }
+    else if (S2 === 1) { p2.wins++; p1.losses++; }
     else { p1.draws++; p2.draws++; }
 
-    db.ref(`players/${whiteName}`).set(p1);
-    db.ref(`players/${blackName}`).set(p2);
+    db.ref(`players/${p1Name}`).set(p1);
+    db.ref(`players/${p2Name}`).set(p2);
 }
 
 // ADMIN ACTION: ADD SCHEDULED MATCH
