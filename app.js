@@ -500,3 +500,54 @@ function savePlayerCorrection() {
     db.ref(`players/${newName}`).set(updatedData);
     alert("Player record manually corrected!");
 }
+// HEAD TO HEAD COMPARISON RENDERING
+function renderH2H() {
+    const p1Name = document.getElementById("h2h-player-1").value;
+    const p2Name = document.getElementById("h2h-player-2").value;
+    const container = document.getElementById("h2h-result-container");
+
+    if (!p1Name || !p2Name || p1Name === p2Name) {
+        container.innerHTML = `<p class="empty-state">Select two different players to compare head-to-head stats.</p>`;
+        return;
+    }
+
+    const p1 = appState.players[p1Name] || { ghelo: 800 };
+    const p2 = appState.players[p2Name] || { ghelo: 800 };
+
+    let p1Wins = 0, p2Wins = 0, draws = 0, totalMatches = 0;
+
+    // Iterate through all matches across all seasons to calculate H2H history
+    Object.values(appState.seasons).forEach(season => {
+        (season.matches || []).forEach(m => {
+            if (m.status === 'completed' && 
+               ((m.white === p1Name && m.black === p2Name) || (m.white === p2Name && m.black === p1Name))) {
+                totalMatches++;
+                if (m.winner === p1Name) p1Wins++;
+                else if (m.winner === p2Name) p2Wins++;
+                else draws++;
+            }
+        });
+    });
+
+    container.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; text-align: center;">
+            <div style="flex: 1;">
+                <h3 style="color: var(--primary);">${p1Name}</h3>
+                <p>GHelo: <strong>${p1.ghelo || 800}</strong></p>
+                <h2 style="font-size: 2rem; margin-top: 0.5rem; color: var(--success);">${p1Wins}</h2>
+                <p>Wins</p>
+            </div>
+            <div style="padding: 0 1rem;">
+                <p style="font-weight: bold; font-size: 1.2rem; color: var(--text-muted);">VS</p>
+                <p style="font-size: 0.85rem;">Matches: ${totalMatches}</p>
+                <p style="font-size: 0.85rem;">Draws: ${draws}</p>
+            </div>
+            <div style="flex: 1;">
+                <h3 style="color: var(--primary);">${p2Name}</h3>
+                <p>GHelo: <strong>${p2.ghelo || 800}</strong></p>
+                <h2 style="font-size: 2rem; margin-top: 0.5rem; color: var(--success);">${p2Wins}</h2>
+                <p>Wins</p>
+            </div>
+        </div>
+    `;
+}
