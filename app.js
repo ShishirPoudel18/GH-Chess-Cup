@@ -205,11 +205,19 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
 }
 
 // Calculate Season Stats & GHPS
+// Calculate Season Stats & Rating-Adjusted GHPS
 function calculateSeasonPlayerStats(playerName, matches) {
     let p=0, w=0, l=0, d=0, pts=0, ghps=0;
+    
+    // Get current player's GHelo (defaults to 800 if missing)
+    const playerRating = (appState.players[playerName] || {}).ghelo || 800;
+
     matches.filter(m => m.status === 'completed' && (m.white === playerName || m.black === playerName)).forEach(m => {
         p++;
         const isWhite = m.white === playerName;
+        const opponentName = isWhite ? m.black : m.white;
+        const opponentRating = (appState.players[opponentName] || {}).ghelo || 800;
+
         const actualScore = m.winner === playerName ? 1 : (m.winner === 'Draw' ? 0.5 : 0);
         
         if (actualScore === 1) w++;
@@ -218,10 +226,13 @@ function calculateSeasonPlayerStats(playerName, matches) {
 
         pts += actualScore;
         
-        // GHPS calculation: Sum of (S - E)
-        const expectedScore = 0.5; // Baseline expected
+        // Dynamic Expected Score (E) based on opponent's GHelo rating
+        const expectedScore = 1 / (1 + Math.pow(10, (opponentRating - playerRating) / 400));
+        
+        // Rating-adjusted GHPS: Sum of (S - E)
         ghps += (actualScore - expectedScore);
     });
+
     return { name: playerName, p, w, l, d, pts, ghps };
 }
 
