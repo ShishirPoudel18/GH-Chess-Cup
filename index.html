@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GH Chess Cup - Pulchowk Campus</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="logo">
+            <i class="fa-solid fa-chess-knight logo-icon"></i>
+            <span>GH CHESS CUP</span>
+        </div>
+        <nav class="nav-links">
+            <button class="nav-btn active" data-tab="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+            <button class="nav-btn" data-tab="current-season"><i class="fa-solid fa-trophy"></i> Current Season</button>
+            <button class="nav-btn" data-tab="all-seasons"><i class="fa-solid fa-clock-rotate-left"></i> All Seasons</button>
+            <button class="nav-btn" data-tab="player-stats"><i class="fa-solid fa-users"></i> Player Stats</button>
+            <button class="nav-btn admin-btn-nav" data-tab="admin"><i class="fa-solid fa-lock"></i> Admin</button>
+        </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container">
+
+        <!-- 1. DASHBOARD TAB -->
+        <section id="dashboard" class="tab-content active">
+            <div class="hero-banner">
+                <h1>Welcome to GH Chess Cup</h1>
+                <p>Pulchowk Campus • Section GH Championship</p>
+                <div class="season-badge" id="current-season-badge">Active: Season 3</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fa-solid fa-user-group stat-icon"></i>
+                    <div>
+                        <h3 id="stat-total-players">0</h3>
+                        <p>Total Registered Players</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-chess-board stat-icon"></i>
+                    <div>
+                        <h3 id="stat-total-matches">0</h3>
+                        <p>Matches Played</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-crown stat-icon"></i>
+                    <div>
+                        <h3 id="stat-top-player">-</h3>
+                        <p>Top Rated Player (GHelo)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-sections">
+                <div class="card">
+                    <h2><i class="fa-solid fa-calendar-day"></i> Upcoming / Next Matches</h2>
+                    <div id="upcoming-matches-list" class="match-list">
+                        <p class="empty-state">No upcoming matches scheduled.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2><i class="fa-solid fa-square-poll-vertical"></i> Quick Leaderboard Highlights</h2>
+                    <div id="dashboard-leaderboard" class="mini-table-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. CURRENT SEASON TAB -->
+        <section id="current-season" class="tab-content">
+            <div class="season-header">
+                <h2 id="current-season-title">Season 3 - Live Status</h2>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-list-check"></i> Match Schedules & Results</h3>
+                <div id="current-schedules" class="schedule-grid"></div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-table-cells"></i> Live Group Stage Points Table</h3>
+                <div id="current-points-tables" class="groups-container"></div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-sitemap"></i> Knockout Stage Bracket</h3>
+                <div class="bracket-wrapper" id="current-bracket"></div>
+            </div>
+        </section>
+
+        <!-- 3. ALL SEASONS TAB -->
+        <section id="all-seasons" class="tab-content">
+            <h2><i class="fa-solid fa-box-archive"></i> Season Archives</h2>
+            <div class="season-selector-grid">
+                <button class="season-select-btn" onclick="switchSeasonView(1)">Season 1</button>
+                <button class="season-select-btn" onclick="switchSeasonView(2)">Season 2</button>
+                <button class="season-select-btn active-season-btn" onclick="switchSeasonView(3)">Season 3</button>
+                <button class="season-select-btn" onclick="switchSeasonView(4)">Season 4</button>
+                <button class="season-select-btn" onclick="switchSeasonView(5)">Season 5</button>
+                <button class="season-select-btn" onclick="switchSeasonView(6)">Season 6</button>
+                <button class="season-select-btn" onclick="switchSeasonView(7)">Season 7</button>
+                <button class="season-select-btn" onclick="switchSeasonView(8)">Season 8</button>
+            </div>
+
+            <div id="archive-season-content">
+                <!-- Dynamically rendered archive interface -->
+            </div>
+        </section>
+
+        <!-- 4. PLAYER STATS TAB -->
+        <section id="player-stats" class="tab-content">
+            <div class="card">
+                <div class="table-header-controls">
+                    <h2><i class="fa-solid fa-ranking-star"></i> All-Time Leaderboard</h2>
+                    <div class="sort-controls">
+                        <label>Sort By: </label>
+                        <select id="leaderboard-sort" onchange="renderLeaderboard()">
+                            <option value="ghelo">GHelo (Default)</option>
+                            <option value="wins">Most Wins</option>
+                            <option value="matches">Most Matches Played</option>
+                            <option value="winrate">Highest Win Percentage</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="alltime-leaderboard-container" class="table-wrapper"></div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fa-solid fa-user-gear"></i> Individual Player Profile & Head-to-Head</h2>
+                <div class="h2h-controls">
+                    <div class="form-group">
+                        <label>Select Player 1:</label>
+                        <select id="h2h-player-1" onchange="renderH2H()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Player 2:</label>
+                        <select id="h2h-player-2" onchange="renderH2H()"></select>
+                    </div>
+                </div>
+                <div id="h2h-result-container" class="h2h-card"></div>
+            </div>
+        </section>
+
+        <!-- 5. ADMIN DASHBOARD TAB -->
+        <section id="admin" class="tab-content">
+            <div id="admin-login-card" class="card mini-card">
+            <h3><i class="fa-solid fa-lock"></i> Organizer Login</h3>
+            <div class="form-group">
+                <label>Admin Email:</label>
+                <input type="email" id="admin-email-input" placeholder="admin@ghchess.com">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="admin-pass-input" placeholder="Enter Password">
+            </div>
+            <button class="btn btn-primary" onclick="loginAdmin()">Login</button>
+            <p id="login-error" class="error-msg"></p>
+        </div>
+
+            <div id="admin-panel" class="admin-panel hidden">
+                <div class="admin-header">
+                    <h2><i class="fa-solid fa-sliders"></i> Organizer Control Panel</h2>
+                    <button class="btn btn-secondary btn-sm" onclick="logoutAdmin()">Logout</button>
+                </div>
+
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" onclick="switchAdminSubTab('add-match')">Record Match Result</button>
+                    <button class="admin-tab-btn" onclick="switchAdminSubTab('manage-schedule')">Schedule Match</button>
+                    <button class="admin-tab-btn" onclick="switchAdminSubTab('group-setup')">Group & Player Setup</button>
+                    <button class="admin-tab-btn" onclick="switchAdminSubTab('corrections')">Manual Corrections</button>
+                </div>
+
+                <!-- Record Match Result -->
+                <div id="admin-sub-add-match" class="admin-sub-content active card">
+                    <h3>Record Result for Scheduled Match</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Select Season:</label>
+                            <select id="result-season-select" onchange="populateMatchDropdown()"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Select Scheduled Match:</label>
+                            <select id="result-match-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Outcome:</label>
+                            <select id="result-outcome-select">
+                                <option value="white">White Won</option>
+                                <option value="black">Black Won</option>
+                                <option value="draw">Draw / Split</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Victory Method / Details:</label>
+                            <input type="text" id="result-method-input" placeholder="e.g. Checkmate, Timeout, Resignation">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="submitMatchResult()">Submit Result & Auto-Update Site</button>
+                </div>
+
+                <!-- Schedule Match -->
+                <div id="admin-sub-manage-schedule" class="admin-sub-content card">
+                    <h3>Schedule a New Match</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Season:</label>
+                            <select id="schedule-season-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stage:</label>
+                            <select id="schedule-stage-select">
+                                <option value="Group Stage">Group Stage</option>
+                                <option value="Quarter Final">Quarter Final</option>
+                                <option value="Semi Final">Semi Final</option>
+                                <option value="Final">Final</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Group (if applicable):</label>
+                            <select id="schedule-group-select">
+                                <option value="A">Group A</option>
+                                <option value="B">Group B</option>
+                                <option value="C">Group C</option>
+                                <option value="D">Group D</option>
+                                <option value="KO">Knockout</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>White Player:</label>
+                            <select id="schedule-white-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Black Player:</label>
+                            <select id="schedule-black-select"></select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addScheduledMatch()">Add to Schedule</button>
+                </div>
+
+                <!-- Group Setup -->
+                <div id="admin-sub-group-setup" class="admin-sub-content card">
+                    <h3>Assign Players to Groups (4 Groups x Up to 5 Slots)</h3>
+                    <div class="form-group">
+                        <label>Select Season to Setup:</label>
+                        <select id="setup-season-select" onchange="renderGroupSetupForm()"></select>
+                    </div>
+                    <div id="group-setup-inputs-container" class="groups-setup-grid"></div>
+                    <button class="btn btn-primary" onclick="saveGroupSetup()">Save Group Assignments</button>
+                </div>
+
+                <!-- Manual Corrections -->
+                <div id="admin-sub-corrections" class="admin-sub-content card">
+                    <h3>Manual Correction Override Panel</h3>
+                    <p class="help-text">Directly update specific fields independently without overriding entire datasets.</p>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Select Player to Correct:</label>
+                            <select id="corr-player-select" onchange="loadPlayerCorrectionData()"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" id="corr-name-input">
+                        </div>
+                        <div class="form-group">
+                            <label>GHelo Rating:</label>
+                            <input type="number" id="corr-ghelo-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Matches:</label>
+                            <input type="number" id="corr-matches-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Wins:</label>
+                            <input type="number" id="corr-wins-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Losses:</label>
+                            <input type="number" id="corr-losses-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Draws:</label>
+                            <input type="number" id="corr-draws-input">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="savePlayerCorrection()">Apply Correction</button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; GH Chess Cup • Section GH, Pulchowk Campus. Managed by Tournament Organizer.</p>
+    </footer>
+
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
