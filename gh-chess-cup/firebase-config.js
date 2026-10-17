@@ -1,16 +1,15 @@
-// Firebase Web Configuration
-// Replace the config object below with your Firebase Project Settings
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAPdSJCOHnhwrSyLLL7ftf8TmnDQRY2pr4",
+    authDomain: "gh-chess-cup.firebaseapp.com",
+    databaseURL: "https://gh-chess-cup-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "gh-chess-cup",
+    storageBucket: "gh-chess-cup.firebasestorage.app",
+    messagingSenderId: "708894541313",
+    appId: "1:708894541313:web:22b547038626da34a96200",
+    measurementId: "G-KMFZETLH0M"
 };
 
-// Initialize Firebase
+// Initialize Firebase (Compat mode for plain browser scripts)
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
