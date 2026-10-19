@@ -421,7 +421,9 @@ function switchAdminSubTab(tabName) {
 }
 
 function populateAdminSeasonDropdowns() {
-    const options = [1,2,3,4,5,6,7,8].map(s => `<option value="${s}">Season ${s}</option>`).join('');
+    let options = [1,2,3,4,5,6,7,8].map(s => `<option value="${s}">Season ${s}</option>`).join('');
+    options += `<option value="test" style="color: var(--accent); font-weight: bold;">🧪 Test Season (Sandbox)</option>`;
+    
     document.getElementById("result-season-select").innerHTML = options;
     document.getElementById("schedule-season-select").innerHTML = options;
     document.getElementById("setup-season-select").innerHTML = options;
@@ -467,9 +469,11 @@ function submitMatchResult() {
         seasonRef.child('matches').set(matches);
 
         // Update Player Overall Stats & GHelo
+        // Only update real GHelo and career stats if it's NOT a test season
+if (seasonNum !== 'test') {
         updateGHeloAndStats(player1, player2, outcome);
         alert("Match result updated successfully!");
-    });
+    }});
 }
 
 function updateGHeloAndStats(p1Name, p2Name, outcome) {
@@ -626,7 +630,9 @@ function renderH2H() {
     let p1Wins = 0, p2Wins = 0, draws = 0, totalMatches = 0;
 
     // Iterate through all matches across all seasons to calculate H2H history
-    Object.values(appState.seasons).forEach(season => {
+   Object.keys(appState.seasons).forEach(seasonKey => {
+    if (seasonKey === 'season_test') return; // Skip test season data in H2H
+    const season = appState.seasons[seasonKey];
         (season.matches || []).forEach(m => {
             if (m.status === 'completed' && 
                ((m.white === p1Name && m.black === p2Name) || (m.white === p2Name && m.black === p1Name))) {
@@ -830,4 +836,13 @@ function autoScheduleKnockouts() {
     }
 
     alert("All knockout matches for this season are already scheduled!");
+}
+
+// Reset Test Season Sandbox
+function resetTestSeason() {
+    if (confirm("Are you sure you want to reset all Test Season data? This will clear all test matches and group setups.")) {
+        db.ref('seasons/season_test').remove().then(() => {
+            alert("Test Season sandbox reset successfully!");
+        });
+    }
 }
