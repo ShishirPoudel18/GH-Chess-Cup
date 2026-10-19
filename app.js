@@ -86,9 +86,13 @@ function renderCurrentSeason() {
 
 function switchSeasonView(seasonNum) {
     appState.viewingSeason = seasonNum;
-    document.querySelectorAll(".season-select-btn").forEach((btn, idx) => {
-        btn.classList.toggle("active-season-btn", (idx + 1) === seasonNum);
+    
+    // Highlight the clicked season button
+    document.querySelectorAll(".season-select-btn").forEach(btn => {
+        const isSelected = btn.getAttribute("onclick").includes(`'${seasonNum}'`) || btn.getAttribute("onclick").includes(`(${seasonNum})`);
+        btn.classList.toggle("active-season-btn", isSelected);
     });
+
     renderArchiveSeason(seasonNum);
 }
 
