@@ -357,3 +357,29 @@ footer {
     font-size: 0.85rem;
     margin-top: auto;
 }
+
+/* Badges for Qualification Status */
+.badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-left: 6px;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+}
+
+.badge-q {
+    color: #2ec4b6;
+    background-color: rgba(46, 196, 182, 0.15);
+    border: 1px solid rgba(46, 196, 182, 0.4);
+}
+
+.badge-e {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.bracket-confirmed {
+    color: #38bdf8 !important;
+    font-weight: bold;
+}
