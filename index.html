@@ -211,43 +211,56 @@
 </div>
 
                 <!-- Schedule Match -->
-                <div id="admin-sub-manage-schedule" class="admin-sub-content card">
-                    <h3>Schedule a New Match</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Season:</label>
-                            <select id="schedule-season-select"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Stage:</label>
-                            <select id="schedule-stage-select">
-                                <option value="Group Stage">Group Stage</option>
-                                <option value="Quarter Final">Quarter Final</option>
-                                <option value="Semi Final">Semi Final</option>
-                                <option value="Final">Final</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Group (if applicable):</label>
-                            <select id="schedule-group-select">
-                                <option value="A">Group A</option>
-                                <option value="B">Group B</option>
-                                <option value="C">Group C</option>
-                                <option value="D">Group D</option>
-                                <option value="KO">Knockout</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Player 1:</label>
-                            <select id="schedule-white-select"></select>
-                        </div>
-                        <div class="form-group">
-                            <label>Player 2:</label>
-                            <select id="schedule-black-select"></select>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="addScheduledMatch()">Add to Schedule</button>
-                </div>
+               <!-- Schedule Match -->
+<div id="admin-sub-manage-schedule" class="admin-sub-content card">
+    <h3>Auto-Generate Tournament Schedules</h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <button class="btn btn-primary" onclick="autoScheduleGroupStage()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Generate 40 Group Matches
+        </button>
+        <button class="btn btn-secondary" onclick="autoScheduleKnockouts()">
+            <i class="fa-solid fa-trophy"></i> Auto-Generate Knockout Match
+        </button>
+    </div>
+
+    <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+
+    <h3>Custom / Manual Match Scheduling</h3>
+    <div class="form-grid">
+        <div class="form-group">
+            <label>Season:</label>
+            <select id="schedule-season-select"></select>
+        </div>
+        <div class="form-group">
+            <label>Stage:</label>
+            <select id="schedule-stage-select">
+                <option value="Group Stage">Group Stage</option>
+                <option value="Quarter Final">Quarter Final</option>
+                <option value="Semi Final">Semi Final</option>
+                <option value="Final">Final</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Group (if applicable):</label>
+            <select id="schedule-group-select">
+                <option value="A">Group A</option>
+                <option value="B">Group B</option>
+                <option value="C">Group C</option>
+                <option value="D">Group D</option>
+                <option value="KO">Knockout</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Player 1:</label>
+            <select id="schedule-white-select"></select>
+        </div>
+        <div class="form-group">
+            <label>Player 2:</label>
+            <select id="schedule-black-select"></select>
+        </div>
+    </div>
+    <button class="btn btn-primary" onclick="addScheduledMatch()">Add Custom Match</button>
+</div>
 
                 <!-- Group Setup -->
                 <div id="admin-sub-group-setup" class="admin-sub-content card">
