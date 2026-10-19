@@ -295,13 +295,19 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
 
 // Calculate Season Stats & GHPS
 // Calculate Season Stats & Rating-Adjusted GHPS
+// Calculate Season Stats & Rating-Adjusted GHPS (STRICTLY GROUP STAGE ONLY)
 function calculateSeasonPlayerStats(playerName, matches) {
     let p=0, w=0, l=0, d=0, pts=0, ghps=0;
     
     // Get current player's GHelo (defaults to 800 if missing)
     const playerRating = (appState.players[playerName] || {}).ghelo || 800;
 
-    matches.filter(m => m.status === 'completed' && (m.white === playerName || m.black === playerName)).forEach(m => {
+    // Filter STRICTLY for completed GROUP STAGE matches
+    matches.filter(m => 
+        m.status === 'completed' && 
+        m.stage === 'Group Stage' && 
+        (m.white === playerName || m.black === playerName)
+    ).forEach(m => {
         p++;
         const isWhite = m.white === playerName;
         const opponentName = isWhite ? m.black : m.white;
