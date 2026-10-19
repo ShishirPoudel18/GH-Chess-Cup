@@ -383,3 +383,34 @@ footer {
     color: #38bdf8 !important;
     font-weight: bold;
 }
+
+/* Champion & Runner-Up Banner */
+.season-champion-banner {
+    background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(30, 41, 59, 0.8));
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    text-align: center;
+}
+
+.champion-box h4, .runnerup-box h4 {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+}
+
+.champion-box h3 {
+    color: var(--accent);
+    font-size: 1.4rem;
+}
+
+.runnerup-box h3 {
+    color: var(--text-color);
+    font-size: 1.2rem;
+}
