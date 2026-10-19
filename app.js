@@ -148,43 +148,50 @@ function sortGroupStandings(playersStats, groupMatches) {
 }
 
 // Calculate Mathematical Qualification Status ('Q', 'E', or '')
-function getPlayerQualificationStatus(player, groupStats) {
+function getPlayerQualificationStatus(player, groupStats, isGroupFinished = false) {
     const TOTAL_MATCHES_PER_PLAYER = 4;
-    const matchesPlayed = player.p;
-    const remainingMatches = TOTAL_MATCHES_PER_PLAYER - matchesPlayed;
-    const maxPossiblePoints = player.pts + remainingMatches;
+    
+    // Sort players strictly by current standings (Points -> GHPS -> H2H)
+    const currentRankIndex = groupStats.findIndex(p => p.name === player.name);
 
-    // Potential maximum points each player in the group can achieve
-    const potentialMaxes = groupStats.map(p => ({
-        name: p.name,
-        pts: p.pts,
-        maxPts: p.pts + (TOTAL_MATCHES_PER_PLAYER - p.p)
-    }));
+    // IF GROUP IS 100% FINISHED: Top 2 are Qualified, rest are Eliminated
+    if (isGroupFinished) {
+        return currentRankIndex < 2 ? 'Q' : 'E';
+    }
 
-    // Other opponents' potential maxes sorted descending
-    const opponentsMax = potentialMaxes
+    // IN-PROGRESS CALCULATIONS:
+    const matchesRemaining = TOTAL_MATCHES_PER_PLAYER - player.p;
+    const maxPossiblePoints = player.pts + matchesRemaining;
+
+    // Get max possible points for all OTHER players in the group
+    const otherMaxPoints = groupStats
         .filter(p => p.name !== player.name)
-        .map(p => p.maxPts)
+        .map(p => p.pts + (TOTAL_MATCHES_PER_PLAYER - p.p))
         .sort((a, b) => b - a);
 
-    const thirdPlaceMax = opponentsMax[2] !== undefined ? opponentsMax[2] : 0;
+    // Thresholds:
+    // 3rd highest potential among opponents
+    const thirdPlacePotential = otherMaxPoints[2] !== undefined ? otherMaxPoints[2] : 0;
 
-    // 1. Guaranteed Qualified: Current points strictly higher than 3rd place's max possible points
-    if (player.pts > thirdPlaceMax) {
+    // 2nd highest current points among opponents
+    const secondPlaceCurrentPts = [...groupStats]
+        .filter(p => p.name !== player.name)
+        .map(p => p.pts)
+        .sort((a, b) => b - a)[1] || 0;
+
+    // 1. GUARANTEED QUALIFIED: Even if every other player gains max remaining points,
+    // this player's current points strictly guarantee a Top 2 finish.
+    if (player.pts > thirdPlacePotential) {
         return 'Q';
     }
 
-    // 2. Guaranteed Eliminated: Max possible points cannot reach current 2nd place's points
-    const currentPointsList = groupStats.map(p => p.pts).sort((a, b) => b - a);
-    const secondPlaceCurrentPts = currentPointsList[1] !== undefined ? currentPointsList[1] : 0;
-
+    // 2. GUARANTEED ELIMINATED: Max possible points cannot catch up to the current 2nd place score
     if (maxPossiblePoints < secondPlaceCurrentPts) {
         return 'E';
     }
 
     return '';
 }
-
 // Render Generic Season Details with Dynamic Points & Knockout Bracket
 function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
     const seasonData = appState.seasons[`season_${seasonNum}`] || {};
@@ -244,7 +251,7 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
                             </thead>
                             <tbody>
                                 ${stats.map(s => {
-                                    const status = getPlayerQualificationStatus(s, stats);
+                                    const status = getPlayerQualificationStatus(s, stats, groupFinished);
                                     const badge = status === 'Q' 
                                         ? '<span class="badge badge-q" title="Qualified">(Q)</span>' 
                                         : (status === 'E' ? '<span class="badge badge-e" title="Eliminated">(E)</span>' : '');
