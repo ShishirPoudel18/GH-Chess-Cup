@@ -654,3 +654,174 @@ function renderH2H() {
         </div>
     `;
 }
+
+// 1. AUTO-SCHEDULE ALL 40 GROUP STAGE MATCHES (Interleaved across Groups A, B, C, D)
+function autoScheduleGroupStage() {
+    const seasonNum = document.getElementById("schedule-season-select").value;
+    const seasonData = appState.seasons[`season_${seasonNum}`] || {};
+    const groups = seasonData.groups || {};
+
+    // Validate that all 4 groups have 5 players
+    const groupKeys = ['A', 'B', 'C', 'D'];
+    for (const g of groupKeys) {
+        if (!groups[g] || groups[g].length < 5) {
+            alert(`Group ${g} does not have 5 players assigned yet. Please complete Group Setup first!`);
+            return;
+        }
+    }
+
+    if (!confirm(`Generate round-robin schedule for Season ${seasonNum}? This will append all 40 group matches.`)) return;
+
+    // Standard 10-match sequence for 5 players (0-indexed indices: 0=P1, 1=P2, 2=P3, 3=P4, 4=P5)
+    const roundPairs = [
+        [0, 1], // Match 1: P1 vs P2
+        [2, 3], // Match 2: P3 vs P4
+        [0, 4], // Match 3: P1 vs P5
+        [1, 2], // Match 4: P2 vs P3
+        [3, 4], // Match 5: P4 vs P5
+        [0, 2], // Match 6: P1 vs P3
+        [1, 3], // Match 7: P2 vs P4
+        [2, 4], // Match 8: P3 vs P5
+        [0, 3], // Match 9: P1 vs P4
+        [1, 4]  // Match 10: P2 vs P5
+    ];
+
+    const matchesRef = db.ref(`seasons/season_${seasonNum}/matches`);
+    matchesRef.once('value', snapshot => {
+        let existingMatches = snapshot.val() || [];
+        let nextId = existingMatches.length + 1;
+        let newMatches = [];
+
+        // Interleave across groups: Round 1 (A, B, C, D), Round 2 (A, B, C, D), ...
+        for (let round = 0; round < 10; round++) {
+            const pair = roundPairs[round];
+            for (const grp of groupKeys) {
+                const player1 = groups[grp][pair[0]];
+                const player2 = groups[grp][pair[1]];
+
+                newMatches.push({
+                    id: nextId++,
+                    stage: "Group Stage",
+                    group: grp,
+                    white: player1,
+                    black: player2,
+                    status: "scheduled"
+                });
+            }
+        }
+
+        const allMatches = existingMatches.concat(newMatches);
+        matchesRef.set(allMatches);
+        alert(`Successfully generated all 40 group stage matches for Season ${seasonNum}!`);
+    });
+}
+
+// 2. AUTO-SCHEDULE KNOCKOUT MATCHES (Quarter Finals, Semi Finals, Final)
+function autoScheduleKnockouts() {
+    const seasonNum = document.getElementById("schedule-season-select").value;
+    const seasonData = appState.seasons[`season_${seasonNum}`] || {};
+    const matches = seasonData.matches || [];
+    const groups = seasonData.groups || {};
+
+    // Determine current knockout progress
+    const qfMatches = matches.filter(m => m.stage === 'Quarter Final');
+    const sfMatches = matches.filter(m => m.stage === 'Semi Final');
+    const finalMatches = matches.filter(m => m.stage === 'Final');
+
+    const matchesRef = db.ref(`seasons/season_${seasonNum}/matches`);
+
+    // Scenario A: Generate Quarter Finals
+    if (qfMatches.length < 4) {
+        // Resolve Group Winners & Runners-up
+        const seeds = {};
+        ['A', 'B', 'C', 'D'].forEach(grp => {
+            const playerList = groups[grp] || [];
+            const grpMatches = matches.filter(m => m.group === grp || (playerList.includes(m.white) && playerList.includes(m.black)));
+            let stats = playerList.map(name => calculateSeasonPlayerStats(name, grpMatches));
+            stats = sortGroupStandings(stats, grpMatches);
+
+            if (stats[0]) seeds[`${grp}1`] = stats[0].name;
+            if (stats[1]) seeds[`${grp}2`] = stats[1].name;
+        });
+
+        const qfPairings = [
+            { idName: 'QF1', p1: seeds['A1'], p2: seeds['B2'] },
+            { idName: 'QF2', p1: seeds['B1'], p2: seeds['A2'] },
+            { idName: 'QF3', p1: seeds['C1'], p2: seeds['D2'] },
+            { idName: 'QF4', p1: seeds['D1'], p2: seeds['C2'] }
+        ];
+
+        let nextId = matches.length + 1;
+        let newQF = [];
+
+        qfPairings.forEach(qf => {
+            if (qf.p1 && qf.p2) {
+                newQF.push({
+                    id: nextId++,
+                    stage: "Quarter Final",
+                    group: "KO",
+                    white: qf.p1,
+                    black: qf.p2,
+                    status: "scheduled"
+                });
+            }
+        });
+
+        if (newQF.length === 0) {
+            alert("Group standings are not finalized enough to schedule Quarter Finals.");
+            return;
+        }
+
+        matchesRef.set(matches.concat(newQF));
+        alert(`Scheduled ${newQF.length} Quarter Final match(es)!`);
+        return;
+    }
+
+    // Scenario B: Generate Semi Finals (Requires QF 1-4 completed)
+    if (sfMatches.length < 2) {
+        const qfCompleted = qfMatches.filter(m => m.status === 'completed');
+        if (qfCompleted.length < 4) {
+            alert("All 4 Quarter Final matches must be completed before scheduling Semi Finals.");
+            return;
+        }
+
+        // Matchup order: QF1 winner vs QF3 winner, QF2 winner vs QF4 winner
+        const wQF1 = qfMatches[0].winner;
+        const wQF2 = qfMatches[1].winner;
+        const wQF3 = qfMatches[2].winner;
+        const wQF4 = qfMatches[3].winner;
+
+        let nextId = matches.length + 1;
+        const newSF = [
+            { id: nextId++, stage: "Semi Final", group: "KO", white: wQF1, black: wQF3, status: "scheduled" },
+            { id: nextId++, stage: "Semi Final", group: "KO", white: wQF2, black: wQF4, status: "scheduled" }
+        ];
+
+        matchesRef.set(matches.concat(newSF));
+        alert("Semi Final matches scheduled!");
+        return;
+    }
+
+    // Scenario C: Generate Final (Requires both Semi Finals completed)
+    if (finalMatches.length < 1) {
+        const sfCompleted = sfMatches.filter(m => m.status === 'completed');
+        if (sfCompleted.length < 2) {
+            alert("Both Semi Final matches must be completed before scheduling the Final.");
+            return;
+        }
+
+        const wSF1 = sfMatches[0].winner;
+        const wSF2 = sfMatches[1].winner;
+
+        let nextId = matches.length + 1;
+        const newFinal = [
+            { id: nextId++, stage: "Final", group: "KO", white: wSF1, black: wSF2, status: "scheduled" }
+        ];
+
+        matchesRef.set(matches.concat(newFinal));
+        alert("Grand Final scheduled!");
+        return;
+    }
+
+    alert("All knockout matches for this season are already scheduled!");
+}
