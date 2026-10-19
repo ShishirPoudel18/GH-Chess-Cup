@@ -120,6 +120,68 @@ function renderArchiveSeason(seasonNum) {
 }
 
 // Render Generic Season Details
+// Sort Group Standings (Points -> GHPS -> Head-to-Head)
+function sortGroupStandings(playersStats, groupMatches) {
+    return playersStats.sort((a, b) => {
+        // 1. Group Points
+        if (b.pts !== a.pts) return b.pts - a.pts;
+
+        // 2. GHPS Score
+        if (Math.abs(b.ghps - a.ghps) > 0.0001) return b.ghps - a.ghps;
+
+        // 3. Head-to-Head Result
+        const h2h = groupMatches.find(m =>
+            m.status === 'completed' &&
+            ((m.white === a.name && m.black === b.name) || (m.white === b.name && m.black === a.name))
+        );
+        if (h2h) {
+            if (h2h.winner === a.name) return -1;
+            if (h2h.winner === b.name) return 1;
+        }
+
+        return 0;
+    });
+}
+
+// Calculate Mathematical Qualification Status ('Q', 'E', or '')
+function getPlayerQualificationStatus(player, groupStats) {
+    const TOTAL_MATCHES_PER_PLAYER = 4;
+    const matchesPlayed = player.p;
+    const remainingMatches = TOTAL_MATCHES_PER_PLAYER - matchesPlayed;
+    const maxPossiblePoints = player.pts + remainingMatches;
+
+    // Potential maximum points each player in the group can achieve
+    const potentialMaxes = groupStats.map(p => ({
+        name: p.name,
+        pts: p.pts,
+        maxPts: p.pts + (TOTAL_MATCHES_PER_PLAYER - p.p)
+    }));
+
+    // Other opponents' potential maxes sorted descending
+    const opponentsMax = potentialMaxes
+        .filter(p => p.name !== player.name)
+        .map(p => p.maxPts)
+        .sort((a, b) => b - a);
+
+    const thirdPlaceMax = opponentsMax[2] !== undefined ? opponentsMax[2] : 0;
+
+    // 1. Guaranteed Qualified: Current points strictly higher than 3rd place's max possible points
+    if (player.pts > thirdPlaceMax) {
+        return 'Q';
+    }
+
+    // 2. Guaranteed Eliminated: Max possible points cannot reach current 2nd place's points
+    const currentPointsList = groupStats.map(p => p.pts).sort((a, b) => b - a);
+    const secondPlaceCurrentPts = currentPointsList[1] !== undefined ? currentPointsList[1] : 0;
+
+    if (maxPossiblePoints < secondPlaceCurrentPts) {
+        return 'E';
+    }
+
+    return '';
+}
+
+// Render Generic Season Details with Dynamic Points & Knockout Bracket
 function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
     const seasonData = appState.seasons[`season_${seasonNum}`] || {};
     const matches = seasonData.matches || [];
@@ -128,7 +190,7 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
     // Matches Render
     const schedContainer = document.getElementById(schedId);
     if (schedContainer) {
-        if(matches.length === 0) {
+        if (matches.length === 0) {
             schedContainer.innerHTML = `<p class="empty-state">No matches recorded for this season.</p>`;
         } else {
             schedContainer.innerHTML = matches.map(m => `
@@ -143,16 +205,30 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
         }
     }
 
-    // Points Table Render with GHPS & Ties
+    // Dynamic Standings and Seed Resolution
+    const resolvedSeeds = {};
+
+    // Points Table Render with Badges
     const tableContainer = document.getElementById(tableId);
     if (tableContainer) {
         let groupsHtml = '';
         ['A', 'B', 'C', 'D'].forEach(grp => {
             const playerList = groups[grp] || [];
-            let stats = playerList.map(name => calculateSeasonPlayerStats(name, matches));
-            
-            // Sort by Points, then GHPS
-            stats.sort((a,b) => b.pts - a.pts || b.ghps - a.ghps);
+            const grpMatches = matches.filter(m => m.group === grp || (playerList.includes(m.white) && playerList.includes(m.black)));
+            let stats = playerList.map(name => calculateSeasonPlayerStats(name, grpMatches));
+
+            // Sort using Points -> GHPS -> H2H
+            stats = sortGroupStandings(stats, grpMatches);
+
+            // Determine Seeds for Bracket
+            const totalGroupMatchesCompleted = grpMatches.filter(m => m.status === 'completed').length;
+            const groupFinished = totalGroupMatchesCompleted === 10; // 5 players * 4 matches / 2 = 10 total matches
+
+            const p1Status = stats[0] ? getPlayerQualificationStatus(stats[0], stats) : '';
+            const p2Status = stats[1] ? getPlayerQualificationStatus(stats[1], stats) : '';
+
+            resolvedSeeds[`${grp}1`] = (groupFinished || p1Status === 'Q') && stats[0] ? stats[0].name : `${grp}1`;
+            resolvedSeeds[`${grp}2`] = (groupFinished || (p1Status === 'Q' && p2Status === 'Q')) && stats[1] ? stats[1].name : `${grp}2`;
 
             groupsHtml += `
                 <div class="group-box">
@@ -163,14 +239,21 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
                                 <tr><th>Player</th><th>P</th><th>W</th><th>L</th><th>D</th><th>Pts</th><th>GHPS</th></tr>
                             </thead>
                             <tbody>
-                                ${stats.map(s => `
-                                    <tr>
-                                        <td><strong>${s.name}</strong></td>
-                                        <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td>${s.d}</td>
-                                        <td><strong>${s.pts}</strong></td>
-                                        <td>${s.ghps.toFixed(1)}</td>
-                                    </tr>
-                                `).join('')}
+                                ${stats.map(s => {
+                                    const status = getPlayerQualificationStatus(s, stats);
+                                    const badge = status === 'Q' 
+                                        ? '<span class="badge badge-q" title="Qualified">(Q)</span>' 
+                                        : (status === 'E' ? '<span class="badge badge-e" title="Eliminated">(E)</span>' : '');
+
+                                    return `
+                                        <tr>
+                                            <td><strong>${s.name}</strong>${badge}</td>
+                                            <td>${s.p}</td><td>${s.w}</td><td>${s.l}</td><td>${s.d}</td>
+                                            <td><strong>${s.pts}</strong></td>
+                                            <td>${s.ghps.toFixed(2)}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
                             </tbody>
                         </table>
                     </div>
@@ -180,25 +263,31 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
         tableContainer.innerHTML = groupsHtml;
     }
 
-    // Knockout Bracket Render
+    // Knockout Bracket Render with Dynamic Player Resolution
     const bracketContainer = document.getElementById(bracketId);
-    if(bracketContainer) {
+    if (bracketContainer) {
+        const formatSlot = (seedLabel) => {
+            const resolved = resolvedSeeds[seedLabel] || seedLabel;
+            const isName = resolved.length > 2;
+            return `<span class="${isName ? 'bracket-confirmed' : ''}">${resolved}</span>`;
+        };
+
         bracketContainer.innerHTML = `
             <div class="bracket-round">
                 <h4>Quarter Finals</h4>
-                <div class="match-card">QF1: A1 vs B2</div>
-                <div class="match-card">QF2: B1 vs A2</div>
-                <div class="match-card">QF3: C1 vs D2</div>
-                <div class="match-card">QF4: D1 vs C2</div>
+                <div class="match-card"><strong>QF1:</strong> ${formatSlot('A1')} vs ${formatSlot('B2')}</div>
+                <div class="match-card"><strong>QF2:</strong> ${formatSlot('B1')} vs ${formatSlot('A2')}</div>
+                <div class="match-card"><strong>QF3:</strong> ${formatSlot('C1')} vs ${formatSlot('D2')}</div>
+                <div class="match-card"><strong>QF4:</strong> ${formatSlot('D1')} vs ${formatSlot('C2')}</div>
             </div>
             <div class="bracket-round">
                 <h4>Semi Finals</h4>
-                <div class="match-card">SF1: Winner QF1 vs Winner QF3</div>
-                <div class="match-card">SF2: Winner QF2 vs Winner QF4</div>
+                <div class="match-card"><strong>SF1:</strong> Winner QF1 vs Winner QF3</div>
+                <div class="match-card"><strong>SF2:</strong> Winner QF2 vs Winner QF4</div>
             </div>
             <div class="bracket-round">
                 <h4>Final</h4>
-                <div class="match-card">Final: Winner SF1 vs Winner SF2</div>
+                <div class="match-card"><strong>Final:</strong> Winner SF1 vs Winner SF2</div>
             </div>
         `;
     }
