@@ -98,16 +98,40 @@ function switchSeasonView(seasonNum) {
 
 function renderArchiveSeason(seasonNum) {
     const container = document.getElementById("archive-season-content");
-    const seasonData = appState.seasons[`season_${seasonNum}`];
+    const seasonKey = seasonNum === 'test' ? 'season_test' : `season_${seasonNum}`;
+    const seasonData = appState.seasons[seasonKey];
 
     if (!seasonData) {
         container.innerHTML = `<div class="card"><p class="empty-state">No data to display for Season ${seasonNum}.</p></div>`;
         return;
     }
 
+    const matches = seasonData.matches || [];
+    const finalMatch = matches.find(m => m.stage === 'Final' && m.status === 'completed');
+
+    let championBannerHtml = '';
+    if (finalMatch && finalMatch.winner) {
+        const winner = finalMatch.winner;
+        const runnerUp = winner === finalMatch.white ? finalMatch.black : finalMatch.white;
+
+        championBannerHtml = `
+            <div class="season-champion-banner">
+                <div class="champion-box">
+                    <h4><i class="fa-solid fa-trophy"></i> Champion</h4>
+                    <h3>${winner}</h3>
+                </div>
+                <div class="runnerup-box">
+                    <h4><i class="fa-solid fa-medal"></i> Runner-Up</h4>
+                    <h3>${runnerUp}</h3>
+                </div>
+            </div>
+        `;
+    }
+
     container.innerHTML = `
+        ${championBannerHtml}
         <div class="card">
-            <h3><i class="fa-solid fa-list-check"></i> Season ${seasonNum} Matches</h3>
+            <h3><i class="fa-solid fa-list-check"></i> ${seasonNum === 'test' ? 'Test Season' : `Season ${seasonNum}`} Matches</h3>
             <div id="arch-schedules-${seasonNum}" class="schedule-grid"></div>
         </div>
         <div class="card">
@@ -274,35 +298,81 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
         tableContainer.innerHTML = groupsHtml;
     }
 
-    // Knockout Bracket Render with Dynamic Player Resolution
+    // Knockout Bracket Render with Dynamic Player Resolution (QF, SF, Final)
     const bracketContainer = document.getElementById(bracketId);
     if (bracketContainer) {
-        const formatSlot = (seedLabel) => {
-            const resolved = resolvedSeeds[seedLabel] || seedLabel;
-            const isName = resolved.length > 2;
-            return `<span class="${isName ? 'bracket-confirmed' : ''}">${resolved}</span>`;
+        // Find scheduled/completed KO matches from match data
+        const qfMatches = matches.filter(m => m.stage === 'Quarter Final');
+        const sfMatches = matches.filter(m => m.stage === 'Semi Final');
+        const finalMatch = matches.find(m => m.stage === 'Final');
+
+        // Quarter Final Player Resolution
+        const getQFSlot = (index, fallback1, fallback2) => {
+            const m = qfMatches[index];
+            if (m) {
+                return `<span class="bracket-confirmed">${m.white}</span> vs <span class="bracket-confirmed">${m.black}</span>`;
+            }
+            const p1 = resolvedSeeds[fallback1] || fallback1;
+            const p2 = resolvedSeeds[fallback2] || fallback2;
+            const isP1 = p1.length > 2 ? 'bracket-confirmed' : '';
+            const isP2 = p2.length > 2 ? 'bracket-confirmed' : '';
+            return `<span class="${isP1}">${p1}</span> vs <span class="${isP2}">${p2}</span>`;
+        };
+
+        // Semi Final Player Resolution
+        const getSFSlot = (index, fallbackText) => {
+            const m = sfMatches[index];
+            if (m) {
+                return `<span class="bracket-confirmed">${m.white}</span> vs <span class="bracket-confirmed">${m.black}</span>`;
+            }
+            // Check if Quarter Finals were completed to infer SF participants
+            const qf1 = qfMatches[0];
+            const qf2 = qfMatches[1];
+            const qf3 = qfMatches[2];
+            const qf4 = qfMatches[3];
+
+            if (index === 0 && qf1?.winner && qf3?.winner) {
+                return `<span class="bracket-confirmed">${qf1.winner}</span> vs <span class="bracket-confirmed">${qf3.winner}</span>`;
+            }
+            if (index === 1 && qf2?.winner && qf4?.winner) {
+                return `<span class="bracket-confirmed">${qf2.winner}</span> vs <span class="bracket-confirmed">${qf4.winner}</span>`;
+            }
+            return fallbackText;
+        };
+
+        // Final Player Resolution
+        const getFinalSlot = () => {
+            if (finalMatch) {
+                return `<span class="bracket-confirmed">${finalMatch.white}</span> vs <span class="bracket-confirmed">${finalMatch.black}</span>`;
+            }
+            const sf1 = sfMatches[0];
+            const sf2 = sfMatches[1];
+
+            if (sf1?.winner && sf2?.winner) {
+                return `<span class="bracket-confirmed">${sf1.winner}</span> vs <span class="bracket-confirmed">${sf2.winner}</span>`;
+            }
+            return 'Winner SF1 vs Winner SF2';
         };
 
         bracketContainer.innerHTML = `
             <div class="bracket-round">
                 <h4>Quarter Finals</h4>
-                <div class="match-card"><strong>QF1:</strong> ${formatSlot('A1')} vs ${formatSlot('B2')}</div>
-                <div class="match-card"><strong>QF2:</strong> ${formatSlot('B1')} vs ${formatSlot('A2')}</div>
-                <div class="match-card"><strong>QF3:</strong> ${formatSlot('C1')} vs ${formatSlot('D2')}</div>
-                <div class="match-card"><strong>QF4:</strong> ${formatSlot('D1')} vs ${formatSlot('C2')}</div>
+                <div class="match-card"><strong>QF1:</strong> ${getQFSlot(0, 'A1', 'B2')}</div>
+                <div class="match-card"><strong>QF2:</strong> ${getQFSlot(1, 'B1', 'A2')}</div>
+                <div class="match-card"><strong>QF3:</strong> ${getQFSlot(2, 'C1', 'D2')}</div>
+                <div class="match-card"><strong>QF4:</strong> ${getQFSlot(3, 'D1', 'C2')}</div>
             </div>
             <div class="bracket-round">
                 <h4>Semi Finals</h4>
-                <div class="match-card"><strong>SF1:</strong> Winner QF1 vs Winner QF3</div>
-                <div class="match-card"><strong>SF2:</strong> Winner QF2 vs Winner QF4</div>
+                <div class="match-card"><strong>SF1:</strong> ${getSFSlot(0, 'Winner QF1 vs Winner QF3')}</div>
+                <div class="match-card"><strong>SF2:</strong> ${getSFSlot(1, 'Winner QF2 vs Winner QF4')}</div>
             </div>
             <div class="bracket-round">
                 <h4>Final</h4>
-                <div class="match-card"><strong>Final:</strong> Winner SF1 vs Winner SF2</div>
+                <div class="match-card"><strong>Final:</strong> ${getFinalSlot()}</div>
             </div>
         `;
     }
-}
 
 // Calculate Season Stats & GHPS
 // Calculate Season Stats & Rating-Adjusted GHPS
