@@ -373,6 +373,7 @@ function renderSeasonDetails(seasonNum, schedId, tableId, bracketId) {
             </div>
         `;
     }
+}
 
 // Calculate Season Stats & GHPS
 // Calculate Season Stats & Rating-Adjusted GHPS
