@@ -13,6 +13,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
+    <!-- Background Video with Fallback Dark Overlay -->
+    <div class="video-bg-wrapper">
+        <video autoplay loop muted playsinline id="bg-video">
+            <source src="https://cdn.pixabay.com/video/2019/04/16/22889-331580457_large.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
 
     <!-- Header Navigation -->
     <header class="navbar">
