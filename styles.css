@@ -614,3 +614,69 @@ footer {
     margin-top: auto;
     background: rgba(11, 15, 25, 0.8);
 }
+
+/* ==========================================
+   🇳🇵 DASHAIN FESTIVE THEME OVERLAY
+   ========================================== */
+.dashain-banner {
+    background: linear-gradient(135deg, rgba(185, 28, 28, 0.85), rgba(120, 11, 11, 0.95));
+    border: 2px solid #f59e0b;
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.75rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.2);
+    backdrop-filter: blur(8px);
+    animation: dashainGlow 3s infinite alternate ease-in-out;
+}
+
+@keyframes dashainGlow {
+    0% { border-color: #f59e0b; box-shadow: 0 0 20px rgba(220, 38, 38, 0.4); }
+    100% { border-color: #fef08a; box-shadow: 0 0 35px rgba(245, 158, 11, 0.6); }
+}
+
+.dashain-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #fef08a;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.4rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.dashain-sub {
+    color: #f1f5f9;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 750px;
+    margin: 0 auto 0.75rem auto;
+}
+
+.dashain-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fde047;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    display: inline-flex;
+    border: 1px solid rgba(254, 240, 138, 0.3);
+}
+
+.dashain-decor {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.2rem;
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.dashain-decor.left { left: 1.5rem; }
+.dashain-decor.right { right: 1.5rem; }
