@@ -680,3 +680,80 @@ footer {
 
 .dashain-decor.left { left: 1.5rem; }
 .dashain-decor.right { right: 1.5rem; }
+
+/* ==========================================
+   🇳🇵 LOGO FESTIVE TIKA & JAMARA OVERLAY
+   ========================================== */
+.logo-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* रातो टीका */
+.festive-tika {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: #dc2626;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #ef4444, 0 0 2px #fef08a;
+    border: 1px solid #fef08a;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* जमरा */
+.festive-jamara {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    font-size: 0.95rem;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
+    transform: rotate(15deg);
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* ==========================================
+   🇳🇵 CLEAN DASHAIN BANNER STYLES
+   ========================================== */
+.dashain-banner {
+    background: linear-gradient(135deg, rgba(153, 27, 27, 0.88), rgba(88, 28, 28, 0.95));
+    border: 1.5px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 8px 25px rgba(185, 28, 28, 0.35);
+    backdrop-filter: blur(10px);
+}
+
+.dashain-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fef08a;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.festive-icon {
+    color: var(--accent);
+    font-size: 1.1rem;
+}
+
+.dashain-sub {
+    color: #f8fafc;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin: 0 auto;
+    max-width: 700px;
+    opacity: 0.95;
+}
